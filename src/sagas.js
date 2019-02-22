@@ -1,19 +1,29 @@
-import { call, put, takeEvery, takeLatest } from 'redux-saga/effects'
+import { call, put, takeLatest } from 'redux-saga/effects'
 import * as Api from './api';
 import * as At from './actionTypes';
 
-// worker Saga: will be fired on USER_FETCH_REQUESTED actions
+function* fetchUsers(action) {
+  try {
+    const data = yield call(Api.fetchUsers);
+    console.log('saga', data);
+    yield put({type: At.USERS_FETCH_OK, payload: data});
+  } catch (e) {
+    yield put({type: At.USERS_FETCH_NG, payload: e.message});
+  }
+}
+
 function* fetchUser(action) {
   try {
-    const data = yield call(Api.fetchUser);
-    yield put({type: At.USER_FETCH_OK, data: data});
+    const data = yield call(Api.fetchUser, action.payload);
+    yield put({type: At.USER_FETCH_OK, payload: data});
   } catch (e) {
-    yield put({type: At.USER_FETCH_NG, message: e.message});
+    yield put({type: At.USER_FETCH_NG, payload: e.message});
   }
 }
 
 function* mySaga() {
-    yield takeLatest("USER_FETCH_REQUESTED", fetchUser);
+    yield takeLatest(At.USER_FETCH, fetchUser);
+    yield takeLatest(At.USERS_FETCH, fetchUsers);
 }
 
 export default mySaga;

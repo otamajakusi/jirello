@@ -2,38 +2,57 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux'
 import Board from 'react-trello';
 import './App.css';
-
-const data = {
-  lanes: [
-    {
-      id: 'lane1',
-      title: 'Planned Tasks',
-      label: '2/2',
-      cards: [
-        {id: 'Card1', title: 'Write Blog', description: 'Can AI make memes', label: '30 mins'},
-        {id: 'Card2', title: 'Pay Rent', description: 'Transfer via NEFT', label: '5 mins', metadata: {sha: 'be312a1'}}
-      ]
-    },
-    {
-      id: 'lane2',
-      title: 'Completed',
-      label: '0/0',
-      cards: []
-    }
-  ]
-}
+import {
+  usersFetch,
+  userFetch
+} from './actions';
 
 class App extends Component {
+  componentDidMount() {
+    this.props.dispatch(usersFetch());
+  }
+
+  onCardClick = (cardId, metadata, laneId) => {
+    console.log(cardId);
+    this.props.dispatch(userFetch(cardId));
+  }
+
   render() {
+    console.log(this.props);
     return (
       <Board
-        data={data}
-        draggable
+        data={this.props.data}
+        draggable={true}
         laneDraggable={false}
-        cardDraggable
+        cardDraggable={true}
+        onCardClick={this.onCardClick}
       />
     );
   }
 }
 
-export default App;
+function mapStateToProps(state) {
+  console.log('mapstate', state);
+  const users = state.users;
+  let cards = [];
+  if (users && users.data) {
+    cards = users.data.map(d => {
+      return ({
+        id: `${d.id}`,
+        title: `${d.first_name} ${d.last_name}`,
+        description: d.avatar,
+      });
+    });
+  }
+  const laneTitle
+    = users && users.data ? `${users.data.length}/${users.total}` : '';
+  const lane = {
+    id: 'lane1',
+    title: 'title1',
+    label: `${laneTitle}`,
+    cards: cards,
+  };
+  return {data: {lanes: [lane]}};
+}
+
+export default connect(mapStateToProps)(App);
