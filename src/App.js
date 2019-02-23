@@ -2,11 +2,16 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux'
 import Modal from 'react-modal';
 import Board from 'react-trello';
+
+import Button from '@material-ui/core/Button';
+
+import ButtonAppBar from './appbar';
 import './App.css';
 import {
   usersFetch,
   userFetch
 } from './actions';
+import firebase from './firebase';
 
 class App extends Component {
   constructor() {
@@ -14,11 +19,21 @@ class App extends Component {
     this.state = {
       modalIsOpen: false,
       avatar: null,
+      account: null,
     };
   }
 
   componentDidMount() {
     this.props.dispatch(usersFetch(1));
+    firebase.auth().onAuthStateChanged(account => {
+      console.log(account);
+      this.setState({ account })
+    });
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    console.log(prevProps);
+    console.log(prevState);
   }
 
   onCardClick = (cardId, metadata, laneId) => {
@@ -36,9 +51,27 @@ class App extends Component {
     this.setState({modalIsOpen: false});
   }
 
+  login = () => {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    firebase.auth().signInWithRedirect(provider);
+  }
+
+  logout = () => {
+    firebase.auth().signOut();
+  }
+
+  renderLoggin = () => {
+    if (this.state.account) {
+      return <Button onClick={this.logout}>Google LOGOUT</Button>
+    } else {
+      return <Button onClick={this.login}>Google LOGIN</Button>
+    }
+  }
+
   render() {
     const {page, totalPages} = this.props;
-    if (page && totalPages && page !== totalPages) {
+    if (page && totalPages && page < totalPages) {
+      // FIXME: warning should be removed.
       this.props.dispatch(usersFetch(page + 1));
     }
     return (
@@ -55,6 +88,7 @@ class App extends Component {
           </div>
         }
         </Modal>
+        <ButtonAppBar title={'AppBar'} button={this.renderLoggin()} />
         <Board
           data={this.props.board}
           draggable={true}
