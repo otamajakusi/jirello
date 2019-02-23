@@ -10,15 +10,14 @@ const axios = axiosbase.create({
   responseType: 'json',
 });
 
-export function fetchUsers() {
+export function fetchUsers(page) {
   return axios
-    .get('/users')
+    .get(`/users?page=${page}`)
     .then(res => res.data)
     .catch(error => error)
 }
 
 export function fetchUser(id) {
-  console.log(id);
   return axios
     .get(`/user/${id}`)
     .then(res => res.data)
