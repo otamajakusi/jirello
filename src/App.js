@@ -34,11 +34,16 @@ function mapStateToProps(state) {
   let cards = [];
   if (users && users.data) {
     cards = users.data.map(d => {
+      const tags = d.color && [{
+        title: d.color,
+        bgcolor: d.color,
+      }];
       return ({
         id: `${d.id}`,
         title: `${d.first_name} ${d.last_name}`,
         description: d.avatar,
         label: d.pantone_value,
+        tags: tags,
       });
     });
   }
