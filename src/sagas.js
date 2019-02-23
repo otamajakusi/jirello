@@ -5,7 +5,6 @@ import * as At from './actionTypes';
 function* fetchUsers(action) {
   try {
     const data = yield call(Api.fetchUsers);
-    console.log('saga', data);
     yield put({type: At.USERS_FETCH_OK, payload: data});
   } catch (e) {
     yield put({type: At.USERS_FETCH_NG, payload: e.message});

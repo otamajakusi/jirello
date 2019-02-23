@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { createStore, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux'
+import logger from 'redux-logger'
 import createSagaMiddleware from 'redux-saga';
 
 import './index.css';
@@ -15,7 +16,7 @@ const sagaMiddleware = createSagaMiddleware();
 // mount it on the Store
 const store = createStore(
   reducer,
-  applyMiddleware(sagaMiddleware)
+  applyMiddleware(logger, sagaMiddleware)
 );
 
 // then run the saga

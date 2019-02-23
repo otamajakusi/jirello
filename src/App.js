@@ -13,12 +13,10 @@ class App extends Component {
   }
 
   onCardClick = (cardId, metadata, laneId) => {
-    console.log(cardId);
     this.props.dispatch(userFetch(cardId));
   }
 
   render() {
-    console.log(this.props);
     return (
       <Board
         data={this.props.data}
@@ -32,7 +30,6 @@ class App extends Component {
 }
 
 function mapStateToProps(state) {
-  console.log('mapstate', state);
   const users = state.users;
   let cards = [];
   if (users && users.data) {
@@ -41,6 +38,7 @@ function mapStateToProps(state) {
         id: `${d.id}`,
         title: `${d.first_name} ${d.last_name}`,
         description: d.avatar,
+        label: d.pantone_value,
       });
     });
   }

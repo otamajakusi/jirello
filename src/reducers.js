@@ -22,10 +22,7 @@ const Reducer = (state = initialState, action) => {
           return d;
         }
       });
-      console.log(users);
-      console.log(action.payload.data);
-      console.log(newUsers);
-      return {...state, users: newUsers};
+      return {...state, users: {...state.users, data: newUsers}};
     case At.USER_FETCH_NG:
       return state;
 
