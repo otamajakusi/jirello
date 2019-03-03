@@ -16,7 +16,8 @@ const sagaMiddleware = createSagaMiddleware();
 // mount it on the Store
 const store = createStore(
   reducer,
-  applyMiddleware(logger, sagaMiddleware)
+  //applyMiddleware(logger, sagaMiddleware)
+  applyMiddleware(sagaMiddleware)
 );
 
 // then run the saga

@@ -1,5 +1,6 @@
-import { call, put, takeEvery, takeLatest } from 'redux-saga/effects'
+import { call, put, fork, takeEvery, takeLatest } from 'redux-saga/effects'
 import * as Api from './api';
+import * as JiraApi from './jira_api';
 import * as At from './actionTypes';
 
 function* fetchUsers(action) {
@@ -20,9 +21,20 @@ function* fetchUser(action) {
   }
 }
 
+function* jiraGetAllProjects(action) {
+  try {
+    const data = yield call(JiraApi.getAllProjects, action.payload);
+    console.log(data);
+    yield put({type: At.JIRA_GET_ALL_PROJECTS_OK, payload: data});
+  } catch (e) {
+    yield put({type: At.JIRA_GET_ALL_PROJECTS_NG, payload: e.message});
+  }
+}
 function* mySaga() {
-    yield takeLatest(At.USER_FETCH, fetchUser);
-    yield takeLatest(At.USERS_FETCH, fetchUsers);
+  yield takeLatest(At.USERS_FETCH, fetchUsers);
+  yield takeLatest(At.USER_FETCH, fetchUser);
+  // Jira
+  yield takeLatest(At.JIRA_GET_ALL_PROJECTS, jiraGetAllProjects);
 }
 
 export default mySaga;

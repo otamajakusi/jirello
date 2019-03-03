@@ -9,7 +9,8 @@ import ButtonAppBar from './appbar';
 import './App.css';
 import {
   usersFetch,
-  userFetch
+  userFetch,
+  jiraGetAllProjects
 } from './actions';
 import firebase from './firebase';
 
@@ -25,15 +26,20 @@ class App extends Component {
 
   componentDidMount() {
     this.props.dispatch(usersFetch(1));
+    this.props.dispatch(jiraGetAllProjects());
+    console.log(process.env.REACT_APP_JIRA_HOST);
+    console.log(process.env.REACT_APP_JIRA_USERNAME);
+    console.log(process.env.REACT_APP_JIRA_PASSWORD);
     firebase.auth().onAuthStateChanged(account => {
-      console.log(account);
       this.setState({ account })
     });
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    console.log(prevProps);
-    console.log(prevState);
+  componentDidUpdate() {
+    const { page, totalPages } = this.props;
+    if (page && totalPages && page <= totalPages) {
+      this.props.dispatch(usersFetch(page + 1));
+    }
   }
 
   onCardClick = (cardId, metadata, laneId) => {
@@ -69,11 +75,6 @@ class App extends Component {
   }
 
   render() {
-    const {page, totalPages} = this.props;
-    if (page && totalPages && page < totalPages) {
-      // FIXME: warning should be removed.
-      this.props.dispatch(usersFetch(page + 1));
-    }
     return (
       <div>
         <Modal

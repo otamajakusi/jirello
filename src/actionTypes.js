@@ -6,4 +6,9 @@ export const USER_FETCH = 'USER_FETCH';
 export const USER_FETCH_OK = 'USER_FETCH_OK';
 export const USER_FETCH_NG = 'USER_FETCH_NG';
 
+// Jira
+export const JIRA_GET_ALL_PROJECTS = 'JIRA_GET_ALL_PROJECTS';
+export const JIRA_GET_ALL_PROJECTS_OK = 'JIRA_GET_ALL_PROJECTS_OK';
+export const JIRA_GET_ALL_PROJECTS_NG = 'JIRA_GET_ALL_PROJECTS_NG';
+
 
