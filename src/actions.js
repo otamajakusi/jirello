@@ -7,3 +7,4 @@ export const userFetch = createAction(At.USER_FETCH);
 
 // Jira
 export const jiraGetAllProjects = createAction(At.JIRA_GET_ALL_PROJECTS);
+export const jiraGetIssues = createAction(At.JIRA_GET_ISSUES);

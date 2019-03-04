@@ -2,6 +2,7 @@ import * as At from './actionTypes';
 
 const initialState = {
   users: {},
+  jira: {},
 };
 
 const Reducer = (state = initialState, action) => {
@@ -27,6 +28,13 @@ const Reducer = (state = initialState, action) => {
       return {...state, users: {...state.users, data: newUsersData}};
     }
     case At.USER_FETCH_NG:
+      return state;
+
+    // 
+    case At.JIRA_GET_ISSUES_OK:
+      const issues = state.jira.issues || [];
+      return {...state, jira: {...action.payload, issues: [...issues, ...action.payload.issues]}}
+    case At.JIRA_GET_ISSUES_NG:
       return state;
 
     default:

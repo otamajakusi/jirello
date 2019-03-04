@@ -24,17 +24,28 @@ function* fetchUser(action) {
 function* jiraGetAllProjects(action) {
   try {
     const data = yield call(JiraApi.getAllProjects, action.payload);
-    console.log(data);
     yield put({type: At.JIRA_GET_ALL_PROJECTS_OK, payload: data});
   } catch (e) {
     yield put({type: At.JIRA_GET_ALL_PROJECTS_NG, payload: e.message});
   }
 }
+
+function* jiraGetIssues(action) {
+  try {
+    const data = yield call(JiraApi.getIssues, action.payload);
+    console.log(data);
+    yield put({type: At.JIRA_GET_ISSUES_OK, payload: data});
+  } catch (e) {
+    yield put({type: At.JIRA_GET_ISSUES_NG, payload: e.message});
+  }
+}
+
 function* mySaga() {
   yield takeLatest(At.USERS_FETCH, fetchUsers);
   yield takeLatest(At.USER_FETCH, fetchUser);
   // Jira
   yield takeLatest(At.JIRA_GET_ALL_PROJECTS, jiraGetAllProjects);
+  yield takeLatest(At.JIRA_GET_ISSUES, jiraGetIssues);
 }
 
 export default mySaga;

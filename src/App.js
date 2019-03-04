@@ -10,7 +10,8 @@ import './App.css';
 import {
   usersFetch,
   userFetch,
-  jiraGetAllProjects
+  jiraGetAllProjects,
+  jiraGetIssues
 } from './actions';
 import firebase from './firebase';
 
@@ -27,9 +28,7 @@ class App extends Component {
   componentDidMount() {
     this.props.dispatch(usersFetch(1));
     this.props.dispatch(jiraGetAllProjects());
-    console.log(process.env.REACT_APP_JIRA_HOST);
-    console.log(process.env.REACT_APP_JIRA_USERNAME);
-    console.log(process.env.REACT_APP_JIRA_PASSWORD);
+    this.props.dispatch(jiraGetIssues(0));
     firebase.auth().onAuthStateChanged(account => {
       this.setState({ account })
     });
@@ -39,6 +38,12 @@ class App extends Component {
     const { page, totalPages } = this.props;
     if (page && totalPages && page <= totalPages) {
       this.props.dispatch(usersFetch(page + 1));
+    }
+    const { startAt, maxResults, total, issues } = this.props;
+    if (startAt + maxResults && total && issues &&
+      issues.length < total) {
+      const next = startAt + maxResults;
+      this.props.dispatch(jiraGetIssues(next));
     }
   }
 
@@ -103,7 +108,7 @@ class App extends Component {
   }
 }
 
-function mapStateToProps(state) {
+const createUserLane = state => {
   const users = state.users;
   let cards = [];
   if (users && users.data) {
@@ -124,16 +129,52 @@ function mapStateToProps(state) {
   }
   const laneTitle
     = users && users.data ? `${users.data.length}/${users.total}` : '';
-  const lane = {
-    id: 'lane1',
+  return {
+    id: 'user lane',
     title: 'title1',
-    label: `${laneTitle}`,
+    label: laneTitle,
     cards: cards,
   };
+}
+
+const createJiraLane = state => {
+  const jira = state.jira;
+  let cards = [];
+  if (jira && jira.issues) {
+    cards = jira.issues.map(i => {
+      return ({
+        id: `${i.id}`,
+        title: i.key,
+        description: i.fields.summary,
+        //description: d.avatar,
+        //metadata: {avatar: d.avatar},
+        //label: i.key,
+        //tags: tags,
+      });
+    });
+  }
+  const laneTitle = 'jira';
   return {
-    board: {lanes: [lane]},
+    id: 'jira lane',
+    title: 'title1',
+    label: laneTitle,
+    cards: cards,
+  };
+}
+
+function mapStateToProps(state) {
+  const users = state.users;
+  const jira = state.jira;
+  const lane1 = createUserLane(state);
+  const lane2 = createJiraLane(state);
+  return {
+    board: {lanes: [lane1, lane2]},
     page: users && users.page,
     totalPages: users && users.total_pages,
+    startAt: jira && jira.startAt,
+    maxResults: jira && jira.maxResults,
+    total: jira && jira.total,
+    issues: jira && jira.issues,
   };
 }
 
