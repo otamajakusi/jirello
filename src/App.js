@@ -137,27 +137,31 @@ const createUserLane = state => {
   };
 }
 
-const createJiraLane = state => {
+const createJiraLane = (state,issueStatus) => {
   const jira = state.jira;
   let cards = [];
   if (jira && jira.issues) {
-    cards = jira.issues.map(i => {
-      return ({
-        id: `${i.id}`,
-        title: i.key,
-        description: i.fields.summary,
-        //description: d.avatar,
-        //metadata: {avatar: d.avatar},
-        //label: i.key,
-        //tags: tags,
+    cards = jira.issues
+      .filter(i => {
+        //console.log(i.fields.status.name);
+        return i.fields.status.name === issueStatus
+      })
+      .map(i => {
+        return ({
+          id: `${i.id}`,
+          title: i.key,
+          description: i.fields.summary,
+          //description: d.avatar,
+          //metadata: {avatar: d.avatar},
+          //label: i.key,
+          //tags: tags,
+        });
       });
-    });
   }
-  const laneTitle = 'jira';
   return {
-    id: 'jira lane',
-    title: 'title1',
-    label: laneTitle,
+    id: issueStatus,
+    title: issueStatus,
+    label: cards.length,
     cards: cards,
   };
 }
@@ -166,9 +170,11 @@ function mapStateToProps(state) {
   const users = state.users;
   const jira = state.jira;
   const lane1 = createUserLane(state);
-  const lane2 = createJiraLane(state);
+  const lane2 = createJiraLane(state, 'BACKLOG');
+  const lane3 = createJiraLane(state, 'Doing');
+  const lane4 = createJiraLane(state, 'Review');
   return {
-    board: {lanes: [lane1, lane2]},
+    board: {lanes: [lane1, lane2, lane3, lane4]},
     page: users && users.page,
     totalPages: users && users.total_pages,
     startAt: jira && jira.startAt,
