@@ -7,6 +7,10 @@ import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
+import Chip from '@material-ui/core/Chip';
 
 const styles = {
   root: {
@@ -21,8 +25,8 @@ const styles = {
   },
 };
 
-function ButtonAppBar(props) {
-  const { classes, title, button } = props;
+function NavigationBar(props) {
+  const { classes, title, button, selected, onselect } = props;
   return (
     <div className={classes.root}>
       <AppBar position="static">
@@ -36,6 +40,26 @@ function ButtonAppBar(props) {
             AppBar
           </Typography>
             <div>
+
+              <FormControl className={classes.formControl}>
+    <Select
+      multiple
+      value={selected}
+      onChange={event => onselect(event)}
+
+      renderValue={selected => (
+        <div className={classes.chips}>
+          {selected.map(value => (
+            <Chip key={value} label={value} className={classes.chip} />
+          ))}
+        </div>
+      )}
+    >
+      <MenuItem value={'Google'}>Google</MenuItem>
+      <MenuItem value={'Amazon'}>Amazon</MenuItem>
+      <MenuItem value={'Apple'}>Apple</MenuItem>
+    </Select>
+              </FormControl>
               {React.cloneElement(button, {color: "inherit"})}
             </div>
         </Toolbar>
@@ -44,8 +68,8 @@ function ButtonAppBar(props) {
   );
 }
 
-ButtonAppBar.propTypes = {
+NavigationBar.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(ButtonAppBar);
+export default withStyles(styles)(NavigationBar);
