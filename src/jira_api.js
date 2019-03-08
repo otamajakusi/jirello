@@ -21,17 +21,26 @@ const axios = axiosbase.create({
   responseType: 'json',
 });
 
-export function getAllProjects() {
+export function getAllProject() {
   return axios
     .get(`/rest/api/2/project`)
     .then(res => res.data)
     .catch(error => error)
 }
 
+export function findUsersAssignable(project) {
+  return axios
+    .get(`/rest/api/2/user/assignable/search?project=${project}`)
+    .then(res => res.data)
+    .catch(error => error)
+}
+
 // TODO: jql is not appropriate.
-export function getIssues(startAt, maxResults = 100, project = 'YAD') {
+export function getIssues(project, startAt, maxResults = 100) {
   const query = `fields=project,summary,assignee,components,created,issuetype,labels,subtasks,status,self`;
-  const jql = `status!=CLOSE&project=${project}&startAt=${startAt}&maxResults=${maxResults}`;
+  //const jql = `status!=CLOSE&project=${project}&startAt=${startAt}&maxResults=${maxResults}`;
+  const jql = `project=${project}&startAt=${startAt}&maxResults=${maxResults}`;
+  console.log(jql);
   return axios
     .get(`/rest/api/2/search?jql=${jql}&${query}`)
     .then(res => res.data)

@@ -1,20 +1,15 @@
 import * as At from './actionTypes';
 
 const initialState = {
-  users: {},
-  jira: {},
+  jira: {
+    projects: [],
+    users: {},
+    issues: {},
+  },
 };
 
 const Reducer = (state = initialState, action) => {
   switch (action.type) {
-    // 
-    case At.USERS_FETCH_OK: {
-      const usersData = state.users.data || [];
-      return {...state, users: {...action.payload, data: [...usersData, ...action.payload.data]}};
-    }
-    case At.USERS_FETCH_NG:
-      return state;
-
     // 
     case At.USER_FETCH_OK: {
       const usersData = state.users.data;
@@ -31,10 +26,52 @@ const Reducer = (state = initialState, action) => {
       return state;
 
     // 
-    case At.JIRA_GET_ISSUES_OK:
-      const issues = state.jira.issues || [];
-      return {...state, jira: {...action.payload, issues: [...issues, ...action.payload.issues]}}
+    case At.JIRA_GET_ALL_PROJECT_OK:
+      return {
+        ...state,
+        jira: {
+          ...state.jira,
+          projects: action.payload,
+        }
+      };
+    case At.JIRA_GET_ALL_PROJECT_NG:
+      return state;
+
+    case At.JIRA_GET_ISSUES_OK: {
+      const project = action.project;
+      const issues = state.jira.issues;
+      return {
+        ...state,
+        jira: {
+          ...state.jira,
+          issues: {
+            ...issues,
+            [project]: {
+              ...action.payload,
+              ...state.jira.issues[project]
+            }
+          }
+        }
+      };
+    }
     case At.JIRA_GET_ISSUES_NG:
+      return state;
+
+    case At.JIRA_FIND_USERS_ASSIGNABLE_OK: {
+      const project = action.project;
+      const users = state.jira.users;
+      return {
+        ...state,
+        jira: {
+          ...state.jira,
+          users: {
+            ...users,
+            [project]: action.payload,
+          }
+        }
+      };
+    }
+    case At.JIRA_FIND_USERS_ASSIGNABLE_NG:
       return state;
 
     default:

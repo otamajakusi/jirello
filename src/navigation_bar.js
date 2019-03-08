@@ -26,7 +26,7 @@ const styles = {
 };
 
 function NavigationBar(props) {
-  const { classes, title, button, selected, onselect } = props;
+  const { classes, title, button, selected, onSelect } = props;
   return (
     <div className={classes.root}>
       <AppBar position="static">
@@ -37,28 +37,26 @@ function NavigationBar(props) {
           </IconButton>
           */}
           <Typography variant="h6" color="inherit" className={classes.grow}>
-            AppBar
+            {title}
           </Typography>
             <div>
-
               <FormControl className={classes.formControl}>
-    <Select
-      multiple
-      value={selected}
-      onChange={event => onselect(event)}
-
-      renderValue={selected => (
-        <div className={classes.chips}>
-          {selected.map(value => (
-            <Chip key={value} label={value} className={classes.chip} />
-          ))}
-        </div>
-      )}
-    >
-      <MenuItem value={'Google'}>Google</MenuItem>
-      <MenuItem value={'Amazon'}>Amazon</MenuItem>
-      <MenuItem value={'Apple'}>Apple</MenuItem>
-    </Select>
+                <Select
+                  multiple
+                  value={selected}
+                  onChange={event => onSelect(event)}
+                  renderValue={selected => (
+                    <div className={classes.chips}>
+                      {selected.map(value => (
+                        <Chip key={value} label={value} className={classes.chip} />
+                      ))}
+                    </div>
+                  )}
+                >
+                  <MenuItem value={'Google'}>Google</MenuItem>
+                  <MenuItem value={'Amazon'}>Amazon</MenuItem>
+                  <MenuItem value={'Apple'}>Apple</MenuItem>
+                </Select>
               </FormControl>
               {React.cloneElement(button, {color: "inherit"})}
             </div>

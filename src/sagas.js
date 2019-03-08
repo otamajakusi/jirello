@@ -1,50 +1,39 @@
-import { call, put, fork, takeEvery, takeLatest } from 'redux-saga/effects'
-import * as Api from './api';
+import { call, put, fork, takeEvery, takeLatest, takeLeading } from 'redux-saga/effects'
 import * as JiraApi from './jira_api';
 import * as At from './actionTypes';
 
-function* fetchUsers(action) {
+function* jiraGetAllProject(action) {
   try {
-    const data = yield call(Api.fetchUsers, action.payload);
-    yield put({type: At.USERS_FETCH_OK, payload: data});
+    const data = yield call(JiraApi.getAllProject, action.payload);
+    yield put({type: At.JIRA_GET_ALL_PROJECT_OK, payload: data});
   } catch (e) {
-    yield put({type: At.USERS_FETCH_NG, payload: e.message});
+    yield put({type: At.JIRA_GET_ALL_PROJECT_NG, payload: e.message});
   }
 }
 
-function* fetchUser(action) {
+function* jiraFindUsersAssignable(action) {
   try {
-    const data = yield call(Api.fetchUser, action.payload);
-    yield put({type: At.USER_FETCH_OK, payload: data});
+    const data = yield call(JiraApi.findUsersAssignable, action.payload);
+    yield put({type: At.JIRA_FIND_USERS_ASSIGNABLE_OK, payload: data, project: action.payload});
   } catch (e) {
-    yield put({type: At.USER_FETCH_NG, payload: e.message});
-  }
-}
-
-function* jiraGetAllProjects(action) {
-  try {
-    const data = yield call(JiraApi.getAllProjects, action.payload);
-    yield put({type: At.JIRA_GET_ALL_PROJECTS_OK, payload: data});
-  } catch (e) {
-    yield put({type: At.JIRA_GET_ALL_PROJECTS_NG, payload: e.message});
+    yield put({type: At.JIRA_FIND_USERS_ASSIGNABLE_NG, payload: e.message});
   }
 }
 
 function* jiraGetIssues(action) {
   try {
-    const data = yield call(JiraApi.getIssues, action.payload);
-    console.log(data);
-    yield put({type: At.JIRA_GET_ISSUES_OK, payload: data});
+    const project = action.payload.project;
+    const startAt = action.payload.startAt;
+    const data = yield call(JiraApi.getIssues, project, startAt);
+    yield put({type: At.JIRA_GET_ISSUES_OK, payload: data, project});
   } catch (e) {
     yield put({type: At.JIRA_GET_ISSUES_NG, payload: e.message});
   }
 }
 
 function* mySaga() {
-  yield takeLatest(At.USERS_FETCH, fetchUsers);
-  yield takeLatest(At.USER_FETCH, fetchUser);
-  // Jira
-  yield takeLatest(At.JIRA_GET_ALL_PROJECTS, jiraGetAllProjects);
+  yield takeLatest(At.JIRA_GET_ALL_PROJECT, jiraGetAllProject);
+  yield takeLatest(At.JIRA_FIND_USERS_ASSIGNABLE, jiraFindUsersAssignable);
   yield takeLatest(At.JIRA_GET_ISSUES, jiraGetIssues);
 }
 

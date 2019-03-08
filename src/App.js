@@ -5,13 +5,15 @@ import Board from 'react-trello';
 
 import Button from '@material-ui/core/Button';
 
-import ButtonAppBar from './appbar';
+import NavigationBar from './navigation_bar';
 import './App.css';
 import {
   usersFetch,
   userFetch,
   jiraGetAllProjects,
-  jiraGetIssues
+  jiraGetIssues,
+  jiraFindUsersAssignable,
+  jiraGetAllProject,
 } from './actions';
 import firebase from './firebase';
 
@@ -20,31 +22,37 @@ class App extends Component {
     super();
     this.state = {
       modalIsOpen: false,
-      avatar: null,
       account: null,
+      assignee: [],
     };
   }
 
   componentDidMount() {
-    this.props.dispatch(usersFetch(1));
-    this.props.dispatch(jiraGetAllProjects());
-    this.props.dispatch(jiraGetIssues(0));
+    this.props.dispatch(jiraGetAllProject());
     firebase.auth().onAuthStateChanged(account => {
       this.setState({ account })
     });
   }
 
   componentDidUpdate() {
-    const { page, totalPages } = this.props;
-    if (page && totalPages && page <= totalPages) {
-      this.props.dispatch(usersFetch(page + 1));
+    const { projects, users, issues } = this.props.jira;
+    if (projects && projects.length === 0) {
+      return;
     }
-    const { startAt, maxResults, total, issues } = this.props;
-    if (startAt + maxResults && total && issues &&
-      issues.length < total) {
-      const next = startAt + maxResults;
-      this.props.dispatch(jiraGetIssues(next));
-    }
+    projects.forEach(proj => {
+      if (users[proj.key]) {
+        return;
+      }
+      this.props.dispatch(jiraFindUsersAssignable(proj.key));
+    });
+    projects.forEach(proj => {
+      if (issues[proj.key]) {
+        return;
+      }
+      console.log(proj.key, issues);
+      this.props.dispatch(jiraGetIssues({project: proj.key, startAt: 0}));
+      return;
+    });
   }
 
   onCardClick = (cardId, metadata, laneId) => {
@@ -87,14 +95,18 @@ class App extends Component {
           onRequestClose={this.closeModal}
           contentLabel="Example Modal"
         >
-        {this.state.avatar &&
-          <div>
-            <img src={this.state.avatar} />
-            {this.state.avatar}
-          </div>
-        }
+          {this.state.avatar &&
+            <div>
+              <img src={this.state.avatar} />
+              {this.state.avatar}
+            </div>
+          }
         </Modal>
-        <ButtonAppBar title={'AppBar'} button={this.renderLoggin()} />
+        <NavigationBar
+          title={'AppBar'}
+          selected={this.state.assignee}
+          onselect={event => this.setState({assignee: event.target.value})}
+          button={this.renderLoggin()} />
         <Board
           data={this.props.board}
           draggable={true}
@@ -143,7 +155,6 @@ const createJiraLane = (state,issueStatus) => {
   if (jira && jira.issues) {
     cards = jira.issues
       .filter(i => {
-        //console.log(i.fields.status.name);
         return i.fields.status.name === issueStatus
       })
       .map(i => {
@@ -167,21 +178,22 @@ const createJiraLane = (state,issueStatus) => {
 }
 
 function mapStateToProps(state) {
-  const users = state.users;
-  const jira = state.jira;
-  const lane1 = createUserLane(state);
-  const lane2 = createJiraLane(state, 'BACKLOG');
-  const lane3 = createJiraLane(state, 'Doing');
-  const lane4 = createJiraLane(state, 'Review');
+  console.log(state);
+  return { ...state, board: {lanes: []}}
+  //const jira = state.jira;
+  //const lane2 = createJiraLane(state, 'BACKLOG');
+  //const lane3 = createJiraLane(state, 'Doing');
+  //const lane4 = createJiraLane(state, 'Review');
+  //const lane5 = createJiraLane(state, 'CLOSE');
+  /*
   return {
-    board: {lanes: [lane1, lane2, lane3, lane4]},
-    page: users && users.page,
-    totalPages: users && users.total_pages,
+    board: {lanes: [lane2, lane3, lane4, lane5]},
     startAt: jira && jira.startAt,
     maxResults: jira && jira.maxResults,
     total: jira && jira.total,
     issues: jira && jira.issues,
   };
+  */
 }
 
 export default connect(mapStateToProps)(App);
