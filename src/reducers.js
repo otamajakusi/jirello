@@ -24,16 +24,24 @@ const Reducer = (state = initialState, action) => {
 
     case At.JIRA_GET_ISSUES_OK: {
       const project = action.project;
-      const issues = state.jira.issues;
+      //console.log(project, state);
+      //console.log(action.payload);
+      const currPrj = state.jira.issues[project] || {};
+      const currPrjIss =
+        state.jira.issues[project] ? state.jira.issues[project].issues : [];
       return {
         ...state,
         jira: {
           ...state.jira,
           issues: {
-            ...issues,
+            ...state.jira.issues,
             [project]: {
+              ...currPrj,
               ...action.payload,
-              ...state.jira.issues[project]
+              issues: [
+                ...currPrjIss,
+                ...action.payload.issues,
+              ]
             }
           }
         }

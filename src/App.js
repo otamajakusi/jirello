@@ -1,3 +1,4 @@
+'use strict';
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
 import Modal from 'react-modal';
@@ -23,6 +24,7 @@ class App extends Component {
       account: null,
       assignee: [],
     };
+    this.fetchIssues = {};
   }
 
   componentDidMount() {
@@ -43,11 +45,21 @@ class App extends Component {
       }
       this.props.dispatch(jiraFindUsersAssignable(proj.key));
     });
+
     projects.forEach(proj => {
-      if (issues[proj.key]) {
-        return;
+      const prjIss = issues[proj.key];
+      if (!prjIss) {
+        if (this.fetchIssues[proj.key] === undefined) {
+          this.props.dispatch(jiraGetIssues({project: proj.key, startAt: 0}));
+          this.fetchIssues[proj.key] = 0;
+        }
+      } else if (prjIss.issues.length < prjIss.total) {
+        if (this.fetchIssues[proj.key] === prjIss.startAt) {
+          const startAt = prjIss.startAt + prjIss.maxResults;
+          this.props.dispatch(jiraGetIssues({project: proj.key, startAt}));
+          this.fetchIssues[proj.key] = startAt;
+        }
       }
-      this.props.dispatch(jiraGetIssues({project: proj.key, startAt: 0}));
     });
   }
 
@@ -111,35 +123,6 @@ class App extends Component {
       </div>
     );
   }
-}
-
-const createUserLane = state => {
-  const users = state.users;
-  let cards = [];
-  if (users && users.data) {
-    cards = users.data.map(d => {
-      const tags = d.color && [{
-        title: d.color,
-        bgcolor: d.color,
-      }];
-      return ({
-        id: `${d.id}`,
-        title: `${d.first_name} ${d.last_name}`,
-        description: d.avatar,
-        metadata: {avatar: d.avatar},
-        label: d.pantone_value,
-        tags: tags,
-      });
-    });
-  }
-  const laneTitle
-    = users && users.data ? `${users.data.length}/${users.total}` : '';
-  return {
-    id: 'user lane',
-    title: 'title1',
-    label: laneTitle,
-    cards: cards,
-  };
 }
 
 const createJiraLane = (state,issueStatus) => {

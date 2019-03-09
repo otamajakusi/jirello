@@ -32,6 +32,7 @@ function* jiraGetIssues(action) {
     const project = action.payload.project;
     const startAt = action.payload.startAt;
     const data = yield call(JiraApi.getIssues, project, startAt);
+    console.log(project, startAt, data);
     yield put({type: At.JIRA_GET_ISSUES_OK, payload: data, project});
   } catch (e) {
     yield put({type: At.JIRA_GET_ISSUES_NG, payload: e.message});
@@ -52,9 +53,9 @@ const takeEveryCustom = (pattern, saga, customPattern) => fork(function*() {
 })
 
 function* mySaga() {
-  yield takeLatest(At.JIRA_GET_ALL_PROJECT, jiraGetAllProject);
-  yield takeEveryCustom(At.JIRA_FIND_USERS_ASSIGNABLE, jiraFindUsersAssignable);
-  yield takeEveryCustom(At.JIRA_GET_ISSUES, jiraGetIssues, action => action.payload.project);
+  yield takeLeading(At.JIRA_GET_ALL_PROJECT, jiraGetAllProject);
+  yield takeEvery(At.JIRA_FIND_USERS_ASSIGNABLE, jiraFindUsersAssignable);
+  yield takeEvery(At.JIRA_GET_ISSUES, jiraGetIssues);
 }
 
 export default mySaga;
