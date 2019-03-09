@@ -1,4 +1,11 @@
-import { call, put, fork, takeEvery, takeLatest, takeLeading } from 'redux-saga/effects'
+import {
+  call,
+  put,
+  fork,
+  take,
+  cancel,
+  takeEvery, takeLatest, takeLeading
+} from 'redux-saga/effects'
 import * as JiraApi from './jira_api';
 import * as At from './actionTypes';
 
@@ -31,10 +38,23 @@ function* jiraGetIssues(action) {
   }
 }
 
+// if pattern & customPattern task is running, skip forking
+const takeEveryCustom = (pattern, saga, customPattern) => fork(function*() {
+  const lastTasks = {};
+  while (true) {
+    const action = yield take(pattern);
+    const subType = customPattern ? customPattern(action) : action.payload;
+    if (lastTasks[subType] && lastTasks[subType].isRunning()) {
+      continue;
+    }
+    lastTasks[subType] = yield fork(saga, action);
+  }
+})
+
 function* mySaga() {
   yield takeLatest(At.JIRA_GET_ALL_PROJECT, jiraGetAllProject);
-  yield takeLatest(At.JIRA_FIND_USERS_ASSIGNABLE, jiraFindUsersAssignable);
-  yield takeLatest(At.JIRA_GET_ISSUES, jiraGetIssues);
+  yield takeEveryCustom(At.JIRA_FIND_USERS_ASSIGNABLE, jiraFindUsersAssignable);
+  yield takeEveryCustom(At.JIRA_GET_ISSUES, jiraGetIssues, action => action.payload.project);
 }
 
 export default mySaga;

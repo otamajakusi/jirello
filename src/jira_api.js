@@ -40,7 +40,7 @@ export function getIssues(project, startAt, maxResults = 100) {
   const query = `fields=project,summary,assignee,components,created,issuetype,labels,subtasks,status,self`;
   //const jql = `status!=CLOSE&project=${project}&startAt=${startAt}&maxResults=${maxResults}`;
   const jql = `project=${project}&startAt=${startAt}&maxResults=${maxResults}`;
-  console.log(jql);
+  //console.log(jql);
   return axios
     .get(`/rest/api/2/search?jql=${jql}&${query}`)
     .then(res => res.data)

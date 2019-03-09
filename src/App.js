@@ -8,8 +8,6 @@ import Button from '@material-ui/core/Button';
 import NavigationBar from './navigation_bar';
 import './App.css';
 import {
-  usersFetch,
-  userFetch,
   jiraGetAllProjects,
   jiraGetIssues,
   jiraFindUsersAssignable,
@@ -49,17 +47,12 @@ class App extends Component {
       if (issues[proj.key]) {
         return;
       }
-      console.log(proj.key, issues);
       this.props.dispatch(jiraGetIssues({project: proj.key, startAt: 0}));
-      return;
     });
   }
 
   onCardClick = (cardId, metadata, laneId) => {
-    this.props.dispatch(userFetch(cardId));
-    if (metadata && metadata.avatar) {
-      this.openModal(metadata.avatar);
-    }
+    console.log(cardId, metadata, laneId);
   }
 
   openModal = (avatar) => {

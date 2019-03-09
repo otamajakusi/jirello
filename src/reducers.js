@@ -11,21 +11,6 @@ const initialState = {
 const Reducer = (state = initialState, action) => {
   switch (action.type) {
     // 
-    case At.USER_FETCH_OK: {
-      const usersData = state.users.data;
-      const newUsersData = usersData.map(d => {
-        if (d.id == action.payload.data.id) {
-          return {...d, ...action.payload.data};
-        } else {
-          return d;
-        }
-      });
-      return {...state, users: {...state.users, data: newUsersData}};
-    }
-    case At.USER_FETCH_NG:
-      return state;
-
-    // 
     case At.JIRA_GET_ALL_PROJECT_OK:
       return {
         ...state,
