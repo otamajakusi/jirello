@@ -23,7 +23,9 @@ class App extends Component {
       modalIsOpen: false,
       account: null,
       assignee: [],
+      selectedProjs: [],
     };
+    // TODO: shouldComponentUpdate() will handle this state
     this.fetchIssues = {};
   }
 
@@ -84,6 +86,7 @@ class App extends Component {
     firebase.auth().signOut();
   }
 
+  // TODO: move to navigation_bar
   renderLoggin = () => {
     if (this.state.account) {
       return <Button onClick={this.logout}>Google LOGOUT</Button>
@@ -92,7 +95,70 @@ class App extends Component {
     }
   }
 
+  createProjectCards = (project, issueStatus) => {
+    const { issues } = this.props.jira;
+    if (!issues || !issues[project]) {
+      return [];
+    }
+    const cards = issues[project].issues
+      .filter(i => {
+        if (Array.isArray(issueStatus)) {
+          return issueStatus.includes(i.fields.status.name);
+        } else {
+          return i.fields.status.name === issueStatus
+        }
+      })
+      .map(i => {
+        return ({
+          id: `${i.id}`,
+          title: i.key,
+          description: i.fields.summary,
+          //description: d.avatar,
+          //metadata: {avatar: d.avatar},
+          //label: i.key,
+          //tags: tags,
+        });
+      });
+    return cards;
+  }
+
+  selectedProjects = () => {
+    const { projects } = this.props.jira;
+    if (this.state.selectedProjs.length) {
+      return this.state.selectedProjs;
+    }
+    if (projects && projects.length) {
+      return projects.map(p => p.key);
+    }
+    return [];
+  }
+
+  createCards = () => {
+    const { projects } = this.props.jira;
+    const issueStatuses = [
+      'BACKLOG',
+      ['Doing', 'In Progress'],
+      ['Review', 'Code Review'],
+      'CLOSE',
+    ];
+    const selectedProjs = this.selectedProjects();
+    const cards = issueStatuses.map(issueStatus => {
+      let laneCards = [];
+      selectedProjs.forEach(p => {
+        laneCards = laneCards.concat(this.createProjectCards(p, issueStatus));
+      });
+      return {
+        id: issueStatus,
+        title: issueStatus,
+        label: laneCards.length,
+        cards: laneCards,
+      };
+    });
+    return cards;
+  }
+
   render() {
+    const { projects, users, issues } = this.props.jira;
     return (
       <div>
         <Modal
@@ -109,11 +175,12 @@ class App extends Component {
         </Modal>
         <NavigationBar
           title={'AppBar'}
-          selected={this.state.assignee}
-          onselect={event => this.setState({assignee: event.target.value})}
+          projects={(projects && projects.map(p => p.key)) || []}
+          selected={this.state.selectedProjs}
+          onSelect={event => this.setState({selectedProjs: event.target.value})}
           button={this.renderLoggin()} />
         <Board
-          data={this.props.board}
+          data={{lanes: this.createCards()}}
           draggable={true}
           laneDraggable={false}
           cardDraggable={true}
@@ -125,51 +192,8 @@ class App extends Component {
   }
 }
 
-const createJiraLane = (state,issueStatus) => {
-  const jira = state.jira;
-  let cards = [];
-  if (jira && jira.issues) {
-    cards = jira.issues
-      .filter(i => {
-        return i.fields.status.name === issueStatus
-      })
-      .map(i => {
-        return ({
-          id: `${i.id}`,
-          title: i.key,
-          description: i.fields.summary,
-          //description: d.avatar,
-          //metadata: {avatar: d.avatar},
-          //label: i.key,
-          //tags: tags,
-        });
-      });
-  }
-  return {
-    id: issueStatus,
-    title: issueStatus,
-    label: cards.length,
-    cards: cards,
-  };
-}
-
 function mapStateToProps(state) {
-  console.log(state);
-  return { ...state, board: {lanes: []}}
-  //const jira = state.jira;
-  //const lane2 = createJiraLane(state, 'BACKLOG');
-  //const lane3 = createJiraLane(state, 'Doing');
-  //const lane4 = createJiraLane(state, 'Review');
-  //const lane5 = createJiraLane(state, 'CLOSE');
-  /*
-  return {
-    board: {lanes: [lane2, lane3, lane4, lane5]},
-    startAt: jira && jira.startAt,
-    maxResults: jira && jira.maxResults,
-    total: jira && jira.total,
-    issues: jira && jira.issues,
-  };
-  */
+  return state;
 }
 
 export default connect(mapStateToProps)(App);

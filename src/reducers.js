@@ -8,6 +8,7 @@ const initialState = {
   },
 };
 
+// TODO: immer
 const Reducer = (state = initialState, action) => {
   switch (action.type) {
     // 

@@ -26,7 +26,7 @@ const styles = {
 };
 
 function NavigationBar(props) {
-  const { classes, title, button, selected, onSelect } = props;
+  const { classes, title, button, projects, selected, onSelect } = props;
   return (
     <div className={classes.root}>
       <AppBar position="static">
@@ -53,9 +53,7 @@ function NavigationBar(props) {
                     </div>
                   )}
                 >
-                  <MenuItem value={'Google'}>Google</MenuItem>
-                  <MenuItem value={'Amazon'}>Amazon</MenuItem>
-                  <MenuItem value={'Apple'}>Apple</MenuItem>
+                {projects.map(p => <MenuItem key={p} value={p}>{p}</MenuItem>)}
                 </Select>
               </FormControl>
               {React.cloneElement(button, {color: "inherit"})}
