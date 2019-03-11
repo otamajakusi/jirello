@@ -66,3 +66,11 @@ This section has moved here: https://facebook.github.io/create-react-app/docs/de
 ### `npm run build` fails to minify
 
 This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+
+### .env
+
+REACT_APP_JIRA_HOST=http://localhost:8080/my-jira-domain.atlassian.net:443
+
+REACT_APP_JIRA_USERNAME=my-account-name@my-domain.com
+
+REACT_APP_JIRA_PASSWORD=my-account-password
