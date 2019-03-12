@@ -11,6 +11,8 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Chip from '@material-ui/core/Chip';
+import InputLabel from '@material-ui/core/InputLabel';
+import Input from '@material-ui/core/Input';
 
 const styles = {
   root: {
@@ -31,33 +33,33 @@ function NavigationBar(props) {
     <div className={classes.root}>
       <AppBar position="static">
         <Toolbar>
-          {/*
           <IconButton className={classes.menuButton} color="inherit" aria-label="Menu">
             <MenuIcon />
           </IconButton>
-          */}
           <Typography variant="h6" color="inherit" className={classes.grow}>
             {title}
           </Typography>
-            <div>
               <FormControl className={classes.formControl}>
+                <InputLabel htmlFor="select-multiple-chip">Projects</InputLabel>
                 <Select
+                  style={{minWidth: 80, width: 80 * selected.length, marginRight: 10}}
                   multiple
                   value={selected}
                   onChange={event => onSelect(event)}
-                  renderValue={selected => (
+                  input={<Input id="select-multiple-chip" />}
+                  renderValue={selected => {
+                    return (
                     <div className={classes.chips}>
                       {selected.map(value => (
                         <Chip key={value} label={value} className={classes.chip} />
                       ))}
-                    </div>
-                  )}
+                    </div>);
+                  }}
                 >
                 {projects.map(p => <MenuItem key={p} value={p}>{p}</MenuItem>)}
                 </Select>
               </FormControl>
               {React.cloneElement(button, {color: "inherit"})}
-            </div>
         </Toolbar>
       </AppBar>
     </div>

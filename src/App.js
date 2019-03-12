@@ -89,9 +89,9 @@ class App extends Component {
   // TODO: move to navigation_bar
   renderLoggin = () => {
     if (this.state.account) {
-      return <Button onClick={this.logout}>Google LOGOUT</Button>
+      return <Button onClick={this.logout}>LOGOUT</Button>
     } else {
-      return <Button onClick={this.login}>Google LOGIN</Button>
+      return <Button onClick={this.login}>LOGIN</Button>
     }
   }
 
@@ -147,9 +147,10 @@ class App extends Component {
       selectedProjs.forEach(p => {
         laneCards = laneCards.concat(this.createProjectCards(p, issueStatus));
       });
+      const issueStatusName = Array.isArray(issueStatus) ? issueStatus[issueStatus.length-1] : issueStatus;
       return {
-        id: issueStatus,
-        title: issueStatus,
+        id: issueStatusName,
+        title: issueStatusName,
         label: laneCards.length,
         cards: laneCards,
       };
